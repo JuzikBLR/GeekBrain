@@ -1,0 +1,9 @@
+#count number of words
+
+a = "She sells sea shells on the sea shore The shells that she sells are sea shells I'm sure. So if she sells sea shells on the sea shore I'm sure that the shells are sea shore shells"
+b = []
+for i in a.lower().replace('.', ' ').split():
+if i not in b:
+b.append(i)
+
+print(len(b))
