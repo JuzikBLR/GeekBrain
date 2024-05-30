@@ -1,0 +1,119 @@
+def work_with_phonebook():
+    choice = show_menu()
+    phone_book = read_txt('C:\pyton\learning\phonebook.txt')
+    while (choice != 8):
+        if choice == 1:
+            print_result(phone_book)
+        elif choice == 2:
+            last_name = input('lastname ')
+            print(find_by_lastname(phone_book, last_name))
+        elif choice == 3:
+            last_name = input('lastname ')
+            new_number = input('new  number ')
+            print(change_number(phone_book, last_name, new_number))
+        elif choice == 4:
+            lastname = input('lastname ')
+            print(delete_by_lastname(phone_book, lastname))
+        elif choice == 5:
+            number = input('number ')
+            print(find_by_number(phone_book, number))
+        elif choice == 6:
+            user_data = input('new data ')
+            add_user(phone_book, user_data)
+            write_txt('C:\pyton\learning\phonebook.txt', phone_book)
+        elif choice == 7:
+            phone_book = edit_record(phone_book)
+            write_txt('C:\pyton\learning\phonebook.txt', phone_book)
+        choice = show_menu()
+
+def show_menu():
+    print ("\nВыберите необходимое действие:\n"
+          "1. Отобразить весь справочник\n"
+          "2. Найти абонента по фамилии\n"
+          "3. Найти абонента по номеру телефона\n"
+          "4. Добавить абонента в справочник\n"
+          "5. Сохранить справочник в текстовом формате\n"
+          "6. Закончить работу\n"
+          "7. Редактировать запись\n"
+          "8. Выход")
+    choice = int(input())
+    return choice
+
+def read_txt(filename): 
+    phone_book=[]
+    fields=['Фамилия', 'Имя', 'Телефон', 'Описание']
+    with open(filename,'r',encoding='utf-8') as phb:
+        for line in phb:
+           record = dict(zip(fields, line.strip().split(',')))
+           phone_book.append(record)
+    return phone_book
+
+def write_txt(filename , phone_book):
+    with open(filename,'w',encoding='utf-8') as phout:
+        for record in phone_book:
+            s=''
+            for v in record.values():
+                s = s + v + ','
+            phout.write(f'{s[:-1]}\n')
+
+def print_result(phone_book):
+    for record in phone_book:
+        print(f"Фамилия: {record['Фамилия']}, Имя: {record['Имя']}, Телефон: {record['Телефон']}, Описание: {record['Описание']}")
+
+def find_by_lastname(phone_book, last_name):
+    for record in phone_book:
+        if last_name in record['Фамилия']:
+            return record
+    return None
+
+def find_by_number(phone_book, number):
+    for record in phone_book:
+        if number in record['Телефон']:
+            return record
+    return None
+
+def change_number(phone_book, last_name, new_number):
+    for record in phone_book:
+        if last_name in record['Фамилия']:
+            record['Телефон'] = new_number
+            return True
+    return False
+
+def delete_by_lastname(phone_book, lastname):
+    for record in phone_book:
+        if lastname in record['Фамилия']:
+            phone_book.remove(record)
+            return True
+    return False
+
+def add_user(phone_book, user_data):
+    fields=['Фамилия', 'Имя', 'Телефон', 'Описание']
+    data = user_data.split(',')
+    if len(data) == 4:
+        record = dict(zip(fields, data))
+        phone_book.append(record)
+        return True
+    return False
+
+def edit_record(phone_book):
+    last_name = input('lastname ')
+    for record in phone_book:
+        if last_name in record['Фамилия']:
+            print("Выберите поле для редактирования:")
+            print("1. Фамилия")
+            print("2. Имя")
+            print("3. Телефон")
+            print("4. Описание")
+            choice = int(input())
+            if choice == 1:
+                record['Фамилия'] = input('new lastname ')
+            elif choice == 2:
+                record['Имя'] = input('new name ')
+            elif choice == 3:
+                record['Телефон'] = input('new number ')
+            elif choice == 4:
+                record['Описание'] = input('new description ')
+            return phone_book
+    return phone_book
+
+work_with_phonebook()
