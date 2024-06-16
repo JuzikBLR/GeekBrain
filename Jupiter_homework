@@ -1,0 +1,56 @@
+#Дан список adv с затратами на рекламу.
+#Но в данных есть ошибки, некоторые затраты имеют отрицательную величину.
+#Удалите такие значения из списка и посчитайте суммарные затраты.
+#Запишите их в переменную x.
+#Используйте list comprehensions.
+# adv = [100, 125, -90, 345, 655, -1, 0, 200]
+# x = sum ([cost for cost in adv if cost >=0])
+# print(x)
+
+
+
+# На складе лежат разные фрукты в разном количестве.
+# Нужно написать функцию total_fruits, которая на вход принимает любое количество названий фруктов и их количество, а возвращает общее количество фруктов на складе.
+# можно решить через *kwargs
+
+# def total_fruits (**kwargs):
+#     total = 0
+#     for fruits, count in kwargs.items():
+#         total+=count
+#     return (total)
+# print(total_fruits(apples=10, bananas=5, oranges=8))
+
+
+
+
+# Даны два списка: дата покупки dates, суммы покупок по датам income.
+# Найти итоговую сумму всех покупок в ноябре и сохранить ее в переменную x.
+# Используйте list comprehensions.
+
+# dates = ['2021-11-01', '2021-11-10', '2021-11-25', '2021-12-01']
+# income = [100, 200, 50, 10]
+# nov_incom = [amount for date, amount in zip(dates, income) if date[:7] == '2021-11']
+# x = sum (nov_incom)
+# print (x)
+
+
+
+# Найдите выручку компании в зависимости от месяца Для этого напишите функцию calc_income_by_month(), 
+# которая на вход принимает список с датами и список с выручкой, а на выходе словарь, где ключи - это месяцы, 
+# а значения - это выручка. Используйте аннотирование типов.
+
+from typing import List, Dict
+def calc_income_by_month (dates: List[str], income: List[float]):
+    result = {}
+    for date, inc in zip (dates, income):
+        month = date[:7]
+        if month in result:
+            result[month] += inc
+        else:
+            result[month] = inc
+    return (result)
+dates = ['2021-10-01', '2021-11-05', '2021-11-15', '2021-12-01']
+income = [100, 200, 150, 300]
+
+monthly_incom = calc_income_by_month(dates, income)
+print (monthly_incom)
