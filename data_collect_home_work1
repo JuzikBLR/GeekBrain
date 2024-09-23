@@ -1,0 +1,50 @@
+import os
+import requests
+
+def get_foursquare_venues(api_key, category, location="Мінск", limit=10):
+    url = 'https://api.foursquare.com/v3/places/search'
+    headers = {
+        'Accept': 'application/json',
+        'Authorization': api_key
+    }
+    params = {
+        'query': category,
+        'near': location,
+        'limit': limit
+    }
+    response = requests.get(url, headers=headers, params=params)
+    
+    if response.status_code == 200:
+        data = response.json()
+        venues = data.get('results', [])
+        if not venues:
+            print("No venues found for the specified category.")
+            return
+        for venue in venues:
+            name = venue.get('name', 'N/A')
+            location_info = venue.get('location', {})
+            address = "".join(location_info.get('formatted_address', []))
+            rating = venue.get('rating', 'N/A') 
+            print(f"Name: {name}")
+            print(f"Address: {address}")
+            print(f"Rating: {rating}")
+            print("-" * 40)
+    else:
+        print(f"Error: {response.status_code}")
+        print(response.text)
+
+def main():
+    # Рекомендуется хранить API-ключ в переменной окружения для безопасности
+    api_key = os.getenv('FOURSQUARE_API_KEY')
+    if not api_key:
+        api_key = input("Введите ваш Foursquare API ключ: ")
+    
+    category = input("Введите категорию интересующих вас заведений (например, кофейни, музеи, парки): ")
+    location = input("Введите местоположение (город, штат): ").strip() or "New York, NY"
+    limit = input("Введите количество результатов (по умолчанию 10): ").strip()
+    limit = int(limit) if limit.isdigit() else 10
+
+    get_foursquare_venues(api_key, category, location, limit)
+
+if __name__ == "__main__":
+    main()
