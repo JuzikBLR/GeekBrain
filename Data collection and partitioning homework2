@@ -1,0 +1,94 @@
+import requests
+from bs4 import BeautifulSoup
+from fake_useragent import UserAgent
+import json
+import re
+
+# Инициализация UserAgent
+ua = UserAgent()
+headers = {"User-Agent": ua.chrome}
+
+# Базовый URL
+base_url = "http://books.toscrape.com/"
+
+# Функция для получения всех категорий
+def get_categories(soup):
+    categories = {}
+    for category in soup.select(".side_categories ul li a"):
+        if 'books_1' not in category['href']:  # Пропускаем главную категорию
+            categories[category.text.strip()] = base_url + category['href']
+    return categories
+
+# Функция для получения данных о книге
+def get_book_data(book_url):
+    response = requests.get(book_url, headers=headers)
+    book_soup = BeautifulSoup(response.text, features="html.parser")
+    
+    title = book_soup.find("h1").text
+    
+    price_tag = book_soup.select_one(".price_color")
+    if price_tag:
+        price_text = price_tag.text.strip()
+        price = float(re.sub(r'[^\d.]', '', price_text))  # Удаляем все, кроме цифр и точки
+    else:
+        price = None  # Если цена не найдена, присваиваем None
+
+    availability_tag = book_soup.select_one(".availability")
+    if availability_tag:
+        availability_text = availability_tag.text.strip()
+        match = re.search(r'\d+', availability_text)
+        if match:
+            availability = int(match.group())  # Извлекаем число
+        else:
+            availability = None  # Если количество не найдено, присваиваем None
+    else:
+        availability = None
+
+    description_tag = book_soup.find("meta", attrs={"name": "description"})
+    if description_tag and description_tag["content"].strip():
+        description = description_tag["content"].strip()
+    else:
+        description = None  # Если описание не найдено, присваиваем None
+    
+    return {
+        "title": title,
+        "price": price,
+        "availability": availability,
+        "description": description
+    }
+
+# Функция для обработки страницы категории
+def process_category_page(url):
+    books = []
+    while url:
+        response = requests.get(url, headers=headers)
+        soup = BeautifulSoup(response.text, features="html.parser")
+        
+        for book in soup.select(".product_pod"):
+            book_url = base_url + "catalogue/" + book.select_one("h3 a")["href"].replace("../", "")
+            books.append(get_book_data(book_url))
+        
+        next_page = soup.select_one(".next a")
+        if next_page:
+            url = base_url + next_page["href"]
+        else:
+            url = None
+    
+    return books
+
+# Основной процесс
+response = requests.get(base_url, headers=headers)
+soup = BeautifulSoup(response.text, features="html.parser")
+
+categories = get_categories(soup)
+
+all_books = {}
+for category, url in categories.items():
+    print(f"Processing category: {category}")
+    all_books[category] = process_category_page(url)
+
+# Сохранение данных в JSON-файл
+with open("books.json", "w", encoding="utf-8") as f:
+    json.dump(all_books, f, ensure_ascii=False, indent=4)
+
+print("Data saved to books.json")
