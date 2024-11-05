@@ -6,7 +6,7 @@ def mapper(path):
         score = float(info['movieIMDbRating'])
         return (1, score, 0.0) # Возвращаем (n, mean, M2)
     else:
-        return (0, 0.0, 0.0) # Возвращаем нейтральные значения для не-json файлов
+        return (0, 0.0, 0.0) # Возвращаем нулевые значения для не-json файлов
 
 
 def reducer(score_data1, score_data2):
@@ -16,7 +16,7 @@ def reducer(score_data1, score_data2):
 
     n = n1 + n2
     if n == 0:
-        return (0, 0.0, 0.0)  # Обрабатываем случай, когда нет оценок
+        return (0, 0.0, 0.0)  # когда нет оценок
 
     mean = (mean1 * n1 + mean2 * n2) / n
 
