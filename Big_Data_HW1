@@ -1,0 +1,26 @@
+def mapper(path):
+  #ваш код
+    if path.is_file() and path.suffix == '.json':
+        with open(path, 'r') as f:
+            info = json.load(f)
+        score = float(info['movieIMDbRating'])
+        return (1, score, 0.0) # Возвращаем (n, mean, M2)
+    else:
+        return (0, 0.0, 0.0) # Возвращаем нейтральные значения для не-json файлов
+
+
+def reducer(score_data1, score_data2):
+    #ваш код
+    n1, mean1, M2_1 = score_data1
+    n2, mean2, M2_2 = score_data2
+
+    n = n1 + n2
+    if n == 0:
+        return (0, 0.0, 0.0)  # Обрабатываем случай, когда нет оценок
+
+    mean = (mean1 * n1 + mean2 * n2) / n
+
+    delta1 = 0.0 if n1 == 0 else mean1 - mean
+    delta2 = 0.0 if n2 == 0 else mean2 - mean
+    
+    M2 = M2_1 + M2_2 + n1 * delta1**2 + n2 * delta2**2
